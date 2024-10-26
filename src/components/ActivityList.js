@@ -21,6 +21,7 @@ const ActivityList = () => {
     return (
         <div>
             <h1>Activities</h1>
+            <h3>{{activities}}</h3>
             {Array.isArray(activities) && activities.length > 0 ? (
                 activities.map(activity => (
                     <div key={activity.ActivityId}>{activity.ActivityName}</div>
