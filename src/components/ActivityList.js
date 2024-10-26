@@ -9,7 +9,6 @@ const ActivityList = () => {
             const response = await axios.get('https://7w5y9pjq74.execute-api.us-east-1.amazonaws.com/Prod/Activities?UserId=user123');
             console.log(response.data); // Log the API response
             console.log(response.data.activities)
-            console.log(response.data.activities.activities)
             setActivities(response.data.activities || []); // Adjust this based on actual response
         } catch (error) {
             console.error('Error fetching activities:', error);
@@ -22,7 +21,8 @@ const ActivityList = () => {
 
     return (
         <div>
-            <h1>Activities</h1>            
+            <h1>Activities</h1>
+            <h3>these are my activities: {activities} - ok!</h3>          
             {Array.isArray(activities) && activities.length > 0 ? (
                 activities.map(activity => (
                     <div key={activity.ActivityId}>{activity.ActivityName}</div>
