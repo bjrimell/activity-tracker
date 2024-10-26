@@ -23,7 +23,7 @@ const ActivityList = () => {
             <h1>Activities</h1>
             {Array.isArray(activities) && activities.length > 0 ? (
                 activities.map(activity => (
-                    <div key={activity.id}>{activity.name}</div>
+                    <div key={activity.ActivityId}>{activity.ActivityName}</div>
                 ))
             ) : (
                 <p>No activities found.</p>
