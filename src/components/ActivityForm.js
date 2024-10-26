@@ -7,7 +7,7 @@ const ActivityForm = ({ fetchActivities }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const userId = 'user1'; // Replace with actual user ID or pass it as a prop
+        const userId = 'user123'; // Replace with actual user ID or pass it as a prop
 
         try {
             await axios.post('https://7w5y9pjq74.execute-api.us-east-1.amazonaws.com/Prod/Activity', {
