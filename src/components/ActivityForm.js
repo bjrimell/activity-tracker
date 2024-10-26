@@ -10,7 +10,7 @@ const ActivityForm = ({ fetchActivities }) => {
         const userId = 'user1'; // Replace with actual user ID or pass it as a prop
 
         try {
-            await axios.post('https://7w5y9pjq74.execute-api.us-east-1.amazonaws.com/Prod/activity', {
+            await axios.post('https://7w5y9pjq74.execute-api.us-east-1.amazonaws.com/Prod/Activity', {
                 UserId: userId,
                 Activity: activity,
                 Frequency: 1, // Default frequency
