@@ -1,9 +1,11 @@
 // src/components/ActivityForm.js
 import React, { useState } from 'react';
 import axios from 'axios';
+import styles from './ActivityForm.module.css'; // Import the CSS module
 
 const ActivityForm = ({ fetchActivities }) => {
     const [activity, setActivity] = useState('');
+    const [error, setError] = useState('');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -18,22 +20,28 @@ const ActivityForm = ({ fetchActivities }) => {
             });
             fetchActivities(); // Refresh activity list after adding
             setActivity('');
+            setError(''); // Clear any previous error messages
         } catch (error) {
             console.error("Error adding activity", error);
+            setError('Failed to add activity. Please try again.'); // Set an error message
         }
     };
 
     return (
-        <form onSubmit={handleSubmit}>
-            <input
-                type="text"
-                value={activity}
-                onChange={(e) => setActivity(e.target.value)}
-                placeholder="Enter activity"
-                required
-            />
-            <button type="submit">Add Activity</button>
-        </form>
+        <div className={styles.formContainer}>
+            <form className={styles.form} onSubmit={handleSubmit}>
+                <input
+                    type="text"
+                    value={activity}
+                    onChange={(e) => setActivity(e.target.value)}
+                    placeholder="Enter activity"
+                    className={styles.input}
+                    required
+                />
+                <button type="submit" className={styles.button}>Add Activity</button>
+                {error && <p className={styles.error}>{error}</p>}
+            </form>
+        </div>
     );
 };
 
