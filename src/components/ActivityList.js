@@ -41,6 +41,9 @@ const ActivityList = () => {
                 activities.map(activity => (
                     <div key={activity.ActivityId} className={styles.activity}>
                         <h3>{activity.ActivityName}</h3>
+                        {activity.Description && (
+                            <p className={styles.description}>Description: {activity.Description}</p>
+                        )}
                         <p>Today's Goal: {activity.Frequency}</p>
                         <p>Today's Completed Count: {activity.CompletedCount}</p>
 

@@ -58,3 +58,9 @@
 .exceeded {
     color: blue;
 }
+
+.description {
+    font-style: italic;
+    color: #666;
+    margin-top: 0.5em;
+}
