@@ -1,10 +1,31 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Typography, Paper, Button, Box, LinearProgress } from '@mui/material';
+import { Typography, Paper, Button, Box, LinearProgress, MenuItem, Select, Chip } from '@mui/material';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { styled } from '@mui/material/styles';
+
+const StyledChip = styled(Chip)(({ theme, color }) => ({
+    backgroundColor: color === 'gold' ? '#FFD700' : theme.palette.success.main, // Gold color for exceeded, success color for completed
+    color: '#fff',
+    fontWeight: 'bold',
+    borderRadius: '16px',
+    padding: '6px 12px',
+    margin: '4px',
+    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+    display: 'flex',
+    alignItems: 'center',
+    '&:hover': {
+        backgroundColor: color === 'gold' ? '#FFC107' : theme.palette.success.dark, // Darker shade on hover
+        transform: 'scale(1.05)', // Slightly enlarge on hover
+        transition: 'transform 0.2s ease-in-out',
+    },
+}));
 
 const ActivityList = () => {
     const [activities, setActivities] = useState([]);
     const [activeActivityId, setActiveActivityId] = useState(null); // Track the active activity
+    const [showCompleted, setShowCompleted] = useState(true); // State to toggle completed activities
+    const [sortMethod, setSortMethod] = useState('alphabetical'); // State for sorting method
 
     const fetchActivities = async () => {
         try {
@@ -45,6 +66,31 @@ const ActivityList = () => {
         return `rgba(${red}, ${green}, 150, 0.2)`; // Light shade with opacity
     };
 
+    const toggleCompletedFilter = () => {
+        setShowCompleted(prev => !prev);
+    };
+
+    const handleSortChange = (event) => {
+        setSortMethod(event.target.value);
+    };
+
+    const sortedActivities = () => {
+        let filteredActivities = showCompleted
+            ? activities
+            : activities.filter(activity => activity.CompletedCount < activity.Frequency);
+
+        return filteredActivities.sort((a, b) => {
+            if (sortMethod === 'alphabetical') {
+                return a.ActivityName.localeCompare(b.ActivityName);
+            } else if (sortMethod === 'progress') {
+                const progressA = a.CompletedCount / a.Frequency;
+                const progressB = b.CompletedCount / b.Frequency;
+                return progressA - progressB; // Sort by progress (ascending)
+            }
+            return 0; // No sorting
+        });
+    };
+
     useEffect(() => {
         fetchActivities();
     }, []);
@@ -54,8 +100,29 @@ const ActivityList = () => {
             <Typography variant="h4" component="h1" gutterBottom>
                 Activities
             </Typography>
-            {Array.isArray(activities) && activities.length > 0 ? (
-                activities.map(activity => (
+
+            {/* Button to toggle completed activities filter */}
+            <Button onClick={toggleCompletedFilter} variant="outlined" sx={{ marginBottom: 2 }}>
+                {showCompleted ? 'Hide Completed Activities' : 'Show All Activities'}
+            </Button>
+
+            {/* Dropdown to select sorting method */}
+            <Select
+                value={sortMethod}
+                onChange={handleSortChange}
+                displayEmpty
+                sx={{ 
+                    marginBottom: 2, 
+                    marginLeft: 2, 
+                    minWidth: 200 // Adjust minimum width as needed
+                }}
+            >
+                <MenuItem value="alphabetical">Sort Alphabetically</MenuItem>
+                <MenuItem value="progress">Sort by Progress</MenuItem>
+            </Select>
+
+            {Array.isArray(sortedActivities()) && sortedActivities().length > 0 ? (
+                sortedActivities().map(activity => (
                     <Paper
                         key={activity.ActivityId}
                         sx={{
@@ -77,7 +144,7 @@ const ActivityList = () => {
                         <Typography variant="body1">Today's Goal: {activity.Frequency}</Typography>
                         <Typography variant="body1">Today's Completed Count: {activity.CompletedCount}</Typography>
 
-                        {/* Progress Bar */}
+                        {/* Circular Progress */}
                         <LinearProgress
                             variant="determinate"
                             value={(activity.CompletedCount / activity.Frequency) * 100}
@@ -92,10 +159,25 @@ const ActivityList = () => {
                                 <Typography color="warning.main">More to do still!</Typography>
                             )}
                             {activity.CompletedCount === activity.Frequency && (
-                                <Typography color="primary">Great job! You've met your goal for today!</Typography>
+                                <>
+                                    <Typography color="primary">Great job! You've met your goal for today!</Typography>
+                                    <StyledChip
+                                        label="Completed"
+                                        icon={<CheckCircleIcon />}
+                                        sx={{ marginTop: 1 }} // Add margin to the badge
+                                    />
+                                </>
                             )}
                             {activity.CompletedCount > activity.Frequency && (
-                                <Typography color="success.main">Amazing! You've exceeded your goal!</Typography>
+                                <>
+                                    <StyledChip
+                                        label="Exceeded"
+                                        color="gold" // Pass gold color for exceeded
+                                        icon={<CheckCircleIcon />}
+                                        sx={{ marginTop: 1 }} // Add margin to the badge
+                                    />
+                                    <Typography color="success.main">Amazing! You've exceeded your goal!</Typography>
+                                </>
                             )}
                         </Box>
 
