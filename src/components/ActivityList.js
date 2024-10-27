@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Typography, Paper, Button, Box, LinearProgress, MenuItem, Select, Chip } from '@mui/material';
+import { Typography, Paper, Button, Box, LinearProgress, MenuItem, Select, Chip, Modal } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { styled } from '@mui/material/styles';
 
 const StyledChip = styled(Chip)(({ theme, color }) => ({
-    backgroundColor: color === 'gold' ? '#FFD700' : theme.palette.success.main, // Gold color for exceeded, success color for completed
+    backgroundColor: color === 'gold' ? '#FFD700' : theme.palette.success.main,
     color: '#fff',
     fontWeight: 'bold',
     borderRadius: '16px',
@@ -15,17 +15,19 @@ const StyledChip = styled(Chip)(({ theme, color }) => ({
     display: 'flex',
     alignItems: 'center',
     '&:hover': {
-        backgroundColor: color === 'gold' ? '#FFC107' : theme.palette.success.dark, // Darker shade on hover
-        transform: 'scale(1.05)', // Slightly enlarge on hover
+        backgroundColor: color === 'gold' ? '#FFC107' : theme.palette.success.dark,
+        transform: 'scale(1.05)',
         transition: 'transform 0.2s ease-in-out',
     },
 }));
 
 const ActivityList = () => {
     const [activities, setActivities] = useState([]);
-    const [activeActivityId, setActiveActivityId] = useState(null); // Track the active activity
-    const [showCompleted, setShowCompleted] = useState(true); // State to toggle completed activities
-    const [sortMethod, setSortMethod] = useState('alphabetical'); // State for sorting method
+    const [activeActivityId, setActiveActivityId] = useState(null);
+    const [showCompleted, setShowCompleted] = useState(true);
+    const [sortMethod, setSortMethod] = useState('alphabetical');
+    const [modalOpen, setModalOpen] = useState(false);
+    const [currentActivityId, setCurrentActivityId] = useState(null);
 
     const fetchActivities = async () => {
         try {
@@ -43,27 +45,33 @@ const ActivityList = () => {
                 CompletedCountIncrement: 1
             });
             fetchActivities();
+            handleCancelModal(); // Use handleCancelModal to close the modal after updating
         } catch (error) {
             console.error('Error updating completed count:', error);
         }
     };
 
-    const startActivity = (activityId) => {
-        if (!activeActivityId) {
-            setActiveActivityId(activityId); // Set the active activity
-        }
+    const openModalToStartActivity = (activityId) => {
+        setCurrentActivityId(activityId);
+        setModalOpen(true);
     };
 
-    const finishActivity = (activityId) => {
-        incrementCompletedCount(activityId); // Increment completion count
-        setActiveActivityId(null); // Reset active activity
+    const handleCancelModal = () => {
+        setModalOpen(false);
+        setCurrentActivityId(null);
+        setActiveActivityId(null); // Reset active activity to allow other buttons to be enabled
+    };    
+
+    const handleConfirmStart = () => {
+        setActiveActivityId(currentActivityId);
+        incrementCompletedCount(currentActivityId);
     };
 
     const calculateBackgroundColor = (completed, frequency) => {
-        const progress = Math.min(completed / frequency, 1); // Ensure progress is maxed at 1
+        const progress = Math.min(completed / frequency, 1);
         const red = Math.round(255 * (1 - progress));
         const green = Math.round(255 * progress);
-        return `rgba(${red}, ${green}, 150, 0.2)`; // Light shade with opacity
+        return `rgba(${red}, ${green}, 150, 0.2)`;
     };
 
     const toggleCompletedFilter = () => {
@@ -85,9 +93,9 @@ const ActivityList = () => {
             } else if (sortMethod === 'progress') {
                 const progressA = a.CompletedCount / a.Frequency;
                 const progressB = b.CompletedCount / b.Frequency;
-                return progressA - progressB; // Sort by progress (ascending)
+                return progressA - progressB;
             }
-            return 0; // No sorting
+            return 0;
         });
     };
 
@@ -101,12 +109,10 @@ const ActivityList = () => {
                 Activities
             </Typography>
 
-            {/* Button to toggle completed activities filter */}
             <Button onClick={toggleCompletedFilter} variant="outlined" sx={{ marginBottom: 2 }}>
                 {showCompleted ? 'Hide Completed Activities' : 'Show All Activities'}
             </Button>
 
-            {/* Dropdown to select sorting method */}
             <Select
                 value={sortMethod}
                 onChange={handleSortChange}
@@ -114,7 +120,7 @@ const ActivityList = () => {
                 sx={{ 
                     marginBottom: 2, 
                     marginLeft: 2, 
-                    minWidth: 200 // Adjust minimum width as needed
+                    minWidth: 200
                 }}
             >
                 <MenuItem value="alphabetical">Sort Alphabetically</MenuItem>
@@ -144,11 +150,10 @@ const ActivityList = () => {
                         <Typography variant="body1">Today's Goal: {activity.Frequency}</Typography>
                         <Typography variant="body1">Today's Completed Count: {activity.CompletedCount}</Typography>
 
-                        {/* Circular Progress */}
                         <LinearProgress
                             variant="determinate"
                             value={(activity.CompletedCount / activity.Frequency) * 100}
-                            sx={{ height: 10, marginY: 2 }} // Set height and margin for the progress bar
+                            sx={{ height: 10, marginY: 2 }} 
                         />
 
                         <Box mt={1}>
@@ -164,7 +169,7 @@ const ActivityList = () => {
                                     <StyledChip
                                         label="Completed"
                                         icon={<CheckCircleIcon />}
-                                        sx={{ marginTop: 1 }} // Add margin to the badge
+                                        sx={{ marginTop: 1 }} 
                                     />
                                 </>
                             )}
@@ -172,40 +177,63 @@ const ActivityList = () => {
                                 <>
                                     <StyledChip
                                         label="Exceeded"
-                                        color="gold" // Pass gold color for exceeded
+                                        color="gold"
                                         icon={<CheckCircleIcon />}
-                                        sx={{ marginTop: 1 }} // Add margin to the badge
+                                        sx={{ marginTop: 1 }} 
                                     />
                                     <Typography color="success.main">Amazing! You've exceeded your goal!</Typography>
                                 </>
                             )}
                         </Box>
 
-                        {activeActivityId === activity.ActivityId ? (
-                            <Button
-                                variant="contained"
-                                color="secondary"
-                                onClick={() => finishActivity(activity.ActivityId)}
-                                sx={{ marginTop: 2 }}
-                            >
-                                Finish Activity
-                            </Button>
-                        ) : (
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                onClick={() => startActivity(activity.ActivityId)}
-                                sx={{ marginTop: 2 }}
-                                disabled={activeActivityId !== null} // Disable if another activity is in progress
-                            >
-                                Start Activity
-                            </Button>
-                        )}
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => openModalToStartActivity(activity.ActivityId)}
+                            sx={{ marginTop: 2 }}
+                            disabled={activeActivityId !== null && activeActivityId !== activity.ActivityId}
+                        >
+                            Start Activity
+                        </Button>
                     </Paper>
                 ))
             ) : (
                 <Typography variant="body1">No activities found.</Typography>
             )}
+
+            {/* Modal for confirming start of activity */}
+            <Modal
+                open={modalOpen}
+                onClose={handleCancelModal}
+                aria-labelledby="modal-title"
+                aria-describedby="modal-description"
+            >
+                <Box sx={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    bgcolor: 'background.paper',
+                    boxShadow: 24,
+                    p: 4,
+                    borderRadius: '8px',
+                }}>
+                    <Typography id="modal-title" variant="h6" component="h2">
+                        Activity in progress
+                    </Typography>
+                    <Typography id="modal-description" sx={{ mt: 2 }}>
+                        Are you ready to finish this activity?
+                    </Typography>
+                    <Box sx={{ mt: 4 }}>
+                        <Button onClick={handleCancelModal} color="error" sx={{ mr: 2 }}>
+                            Cancel
+                        </Button>
+                        <Button onClick={handleConfirmStart} variant="contained" color="primary">
+                            Finish
+                        </Button>
+                    </Box>
+                </Box>
+            </Modal>
         </Box>
     );
 };
