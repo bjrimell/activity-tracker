@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Typography, Paper, Button, Box } from '@mui/material';
+import { Typography, Paper, Button, Box, LinearProgress } from '@mui/material';
 
 const ActivityList = () => {
     const [activities, setActivities] = useState([]);
@@ -76,6 +76,13 @@ const ActivityList = () => {
                         )}
                         <Typography variant="body1">Today's Goal: {activity.Frequency}</Typography>
                         <Typography variant="body1">Today's Completed Count: {activity.CompletedCount}</Typography>
+
+                        {/* Progress Bar */}
+                        <LinearProgress
+                            variant="determinate"
+                            value={(activity.CompletedCount / activity.Frequency) * 100}
+                            sx={{ height: 10, marginY: 2 }} // Set height and margin for the progress bar
+                        />
 
                         <Box mt={1}>
                             {activity.CompletedCount === 0 && (
