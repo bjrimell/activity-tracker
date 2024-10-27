@@ -14,20 +14,18 @@ const ActivityList = () => {
         }
     };
 
-    const reduceFrequency = async (activityId, frequency) => {
+    const incrementCompletedCount = async (activityId, frequency) => {
         try {
-            // Send a PUT request to update the frequency
+            // Send a PUT request to update the completed count
             const response = await axios.put(`https://7w5y9pjq74.execute-api.us-east-1.amazonaws.com/Prod/Activity/${activityId}`, {
                 UserId: 'user123',
-                ActivityId: activityId,
-                // You may want to fetch the current frequency from the activities state, decrement it, and send it
-                Frequency: frequency-1 // This can be replaced by current frequency - 1
+                CompletedCountIncrement: 1
             });
             console.log(response.data);
-            // Fetch the updated activities after reducing frequency
+            // Fetch the updated activities after updating completed count
             fetchActivities();
         } catch (error) {
-            console.error('Error reducing frequency:', error);
+            console.error('Error updating completed count:', error);
         }
     };
 
@@ -42,8 +40,20 @@ const ActivityList = () => {
                 activities.map(activity => (
                     <div key={activity.ActivityId}>
                         <h3>{activity.ActivityName}</h3>
-                        <p>Frequency: {activity.Frequency}</p>
-                        <button onClick={() => reduceFrequency(activity.ActivityId, activity.Frequency)}>Reduce Frequency</button>
+                        <p>Today's Goal: {activity.Frequency}</p>
+                        <p>Today's Completed Count: {activity.CompletedCount}</p>
+
+                        {activity.CompletedCount === 0 && (
+                            <p style={{ color: 'orange' }}>Get started today!</p>
+                        )}
+                        {activity.CompletedCount === activity.Frequency && (
+                            <p style={{ color: 'green' }}>Great job! You've met your goal for today!</p>
+                        )}
+                        {activity.CompletedCount > activity.Frequency && (
+                            <p style={{ color: 'blue' }}>Amazing! You've exceeded your goal!</p>
+                        )}
+
+                        <button onClick={() => incrementCompletedCount(activity.ActivityId, activity.Frequency)}>I've just done this activity</button>
                     </div>
                 ))
             ) : (
