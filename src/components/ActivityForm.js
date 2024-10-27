@@ -12,8 +12,9 @@ const ActivityForm = ({ fetchActivities }) => {
         try {
             await axios.post('https://7w5y9pjq74.execute-api.us-east-1.amazonaws.com/Prod/Activity', {
                 UserId: userId,
-                Activity: activity,
-                Frequency: 1, // Default frequency
+                ActivityId: "activity-from-fe",
+                ActivityName: activity,
+                Frequency: 4, // Default frequency
             });
             fetchActivities(); // Refresh activity list after adding
             setActivity('');
