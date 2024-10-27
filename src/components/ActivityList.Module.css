@@ -47,6 +47,10 @@
     font-weight: bold;
 }
 
+.complain {
+    color: red;
+}
+
 .nagging {
     color: orange;
 }

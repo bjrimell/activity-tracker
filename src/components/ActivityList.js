@@ -48,7 +48,10 @@ const ActivityList = () => {
                         <p>Today's Completed Count: {activity.CompletedCount}</p>
 
                         {activity.CompletedCount === 0 && (
-                            <p className={`${styles.message} ${styles.nagging}`}>Get started today!</p>
+                            <p className={`${styles.message} ${styles.complain}`}>Get started today!</p>
+                        )}
+                        {activity.CompletedCount < activity.Frequency && (
+                            <p className={`${styles.message} ${styles.nagging}`}>More to do still!</p>
                         )}
                         {activity.CompletedCount === activity.Frequency && (
                             <p className={`${styles.message} ${styles.success}`}>Great job! You've met your goal for today!</p>
