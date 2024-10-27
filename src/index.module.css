@@ -1,0 +1,65 @@
+/* App.css */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+.App {
+  text-align: center;
+  font-family: 'Roboto', sans-serif; /* Use the imported font */
+  background-color: #f4f4f4; /* Light background for a modern look */
+  color: #333; /* Darker text for better readability */
+}
+
+.App-logo {
+  height: 80px; /* Adjusted height for better visibility */
+  pointer-events: none;
+  margin-bottom: 20px; /* Spacing below the logo */
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34; /* Dark background for header  */
+  min-height: 100vh; /* Full height for the header */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem; /* Improved font size for readability */
+  color: white;
+  padding: 20px; /* Added padding for better spacing */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+  border-bottom: 5px solid #61dafb; /* Stylish border for separation */
+}
+
+.App-link {
+  color: #61dafb; /* Primary link color */
+  text-decoration: none; /* Remove underline for links */
+  transition: color 0.3s; /* Smooth color transition on hover */
+}
+
+.App-link:hover {
+  color: #21a1f1; /* Change color on hover */
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Additional Styles for Responsiveness */
+@media (max-width: 600px) {
+  .App-header {
+    font-size: 1rem; /* Adjust font size for smaller screens */
+  }
+
+  .App-logo {
+    height: 60px; /* Smaller logo for mobile */
+  }
+}

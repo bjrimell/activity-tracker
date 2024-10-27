@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom';
 import App from './App';
 import { Amplify } from 'aws-amplify';
 import awsExports from './aws-exports';
+import styles from './index.module.css'; // Import the module styles
+
 
 Amplify.configure(awsExports);
 
