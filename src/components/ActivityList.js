@@ -28,6 +28,7 @@ const ActivityList = () => {
     const [sortMethod, setSortMethod] = useState('alphabetical');
     const [modalOpen, setModalOpen] = useState(false);
     const [currentActivityId, setCurrentActivityId] = useState(null);
+    const [timer, setTimer] = useState(0); // Timer state
 
     const fetchActivities = async () => {
         try {
@@ -45,7 +46,7 @@ const ActivityList = () => {
                 CompletedCountIncrement: 1
             });
             fetchActivities();
-            handleCancelModal(); // Use handleCancelModal to close the modal after updating
+            handleCancelModal(); // Close modal after updating
         } catch (error) {
             console.error('Error updating completed count:', error);
         }
@@ -54,18 +55,30 @@ const ActivityList = () => {
     const openModalToStartActivity = (activityId) => {
         setCurrentActivityId(activityId);
         setModalOpen(true);
+        setTimer(0); // Reset timer to 0 each time modal opens
     };
 
     const handleCancelModal = () => {
         setModalOpen(false);
         setCurrentActivityId(null);
-        setActiveActivityId(null); // Reset active activity to allow other buttons to be enabled
-    };    
+        setActiveActivityId(null);
+        setTimer(0); // Reset timer when modal closes
+    };
 
     const handleConfirmStart = () => {
         setActiveActivityId(currentActivityId);
         incrementCompletedCount(currentActivityId);
     };
+
+    // Timer effect to increment every second when the modal is open
+    useEffect(() => {
+        if (modalOpen) {
+            const interval = setInterval(() => {
+                setTimer((prev) => prev + 1);
+            }, 1000);
+            return () => clearInterval(interval); // Cleanup interval on close or unmount
+        }
+    }, [modalOpen]);
 
     const calculateBackgroundColor = (completed, frequency) => {
         const progress = Math.min(completed / frequency, 1);
@@ -156,36 +169,6 @@ const ActivityList = () => {
                             sx={{ height: 10, marginY: 2 }} 
                         />
 
-                        <Box mt={1}>
-                            {activity.CompletedCount === 0 && (
-                                <Typography color="error">Get started today!</Typography>
-                            )}
-                            {activity.CompletedCount < activity.Frequency && (
-                                <Typography color="warning.main">More to do still!</Typography>
-                            )}
-                            {activity.CompletedCount === activity.Frequency && (
-                                <>
-                                    <Typography color="primary">Great job! You've met your goal for today!</Typography>
-                                    <StyledChip
-                                        label="Completed"
-                                        icon={<CheckCircleIcon />}
-                                        sx={{ marginTop: 1 }} 
-                                    />
-                                </>
-                            )}
-                            {activity.CompletedCount > activity.Frequency && (
-                                <>
-                                    <StyledChip
-                                        label="Exceeded"
-                                        color="gold"
-                                        icon={<CheckCircleIcon />}
-                                        sx={{ marginTop: 1 }} 
-                                    />
-                                    <Typography color="success.main">Amazing! You've exceeded your goal!</Typography>
-                                </>
-                            )}
-                        </Box>
-
                         <Button
                             variant="contained"
                             color="primary"
@@ -201,7 +184,7 @@ const ActivityList = () => {
                 <Typography variant="body1">No activities found.</Typography>
             )}
 
-            {/* Modal for confirming start of activity */}
+            {/* Modal for confirming start of activity with timer */}
             <Modal
                 open={modalOpen}
                 onClose={handleCancelModal}
@@ -219,10 +202,13 @@ const ActivityList = () => {
                     borderRadius: '8px',
                 }}>
                     <Typography id="modal-title" variant="h6" component="h2">
-                        Activity in progress
+                        Activity in Progress
                     </Typography>
                     <Typography id="modal-description" sx={{ mt: 2 }}>
                         Are you ready to finish this activity?
+                    </Typography>
+                    <Typography variant="h6" sx={{ mt: 2 }}>
+                        Timer: {Math.floor(timer / 60)}:{String(timer % 60).padStart(2, '0')}
                     </Typography>
                     <Box sx={{ mt: 4 }}>
                         <Button onClick={handleCancelModal} color="error" sx={{ mr: 2 }}>
